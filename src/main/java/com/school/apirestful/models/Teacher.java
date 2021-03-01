@@ -1,12 +1,17 @@
 package com.school.apirestful.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
+import java.util.Set;
 
 @Entity
-@Table(name = "student")
-public class student {
+@JsonIgnoreProperties(value = {"students"},allowGetters = false, allowSetters = true)
+@Table(name = "teacher")
+public class Teacher {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,12 +26,17 @@ public class student {
     @Column(name = "description", length = 128)
     private String description;
 
+    @Column(name = "email", length = 128)
+    private String email;
+
+    @JsonIgnoreProperties("teachers")
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(name = "teacher_student", joinColumns = @JoinColumn(name = "teacher_id" ),
+    inverseJoinColumns = @JoinColumn(name = "student_id"))
+    private Set<Student> students;
+
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -53,9 +63,25 @@ public class student {
         this.description = description;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Set<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(Set<Student> students) {
+        this.students = students;
+    }
+
     @Override
     public String toString() {
-        return "student{" +
+        return "teacher{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", nationality='" + nationality + '\'' +

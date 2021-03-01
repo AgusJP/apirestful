@@ -1,7 +1,7 @@
 package com.school.apirestful.services;
 
 import com.school.apirestful.exceptions.RecordNotFoundException;
-import com.school.apirestful.models.teacher;
+import com.school.apirestful.models.Teacher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.school.apirestful.repositories.teacherRepository;
@@ -16,20 +16,20 @@ public class teacherService {
     @Autowired
     teacherRepository repository;
 
-    public List<teacher> getAllTeachers()
+    public List<Teacher> getAllTeachers()
     {
-        List<teacher> teacherList = repository.findAll();
+        List<Teacher> teacherList = repository.findAll();
 
         if(teacherList.size() > 0) {
             return teacherList;
         } else {
-            return new ArrayList<teacher>();
+            return new ArrayList<Teacher>();
         }
     }
 
-    public teacher getTeacherById(Long id) throws RecordNotFoundException
+    public Teacher getTeacherById(Long id) throws RecordNotFoundException
     {
-        Optional<teacher> teacher = repository.findById(id);
+        Optional<Teacher> teacher = repository.findById(id);
 
         if(teacher.isPresent()) {
             return teacher.get();
@@ -38,26 +38,29 @@ public class teacherService {
         }
     }
 
-    public teacher createTeacher(teacher entity){
+    public Teacher createTeacher(Teacher entity){
         entity = repository.save(entity);
         return entity;
     }
 
-    public teacher UpdateTeacher(teacher entity) throws RecordNotFoundException
+    public Teacher UpdateTeacher(Teacher entity) throws RecordNotFoundException
     {
 
         if(entity.getId()!=null)
         {
-            Optional<teacher> teacher = repository.findById(entity.getId());
+            Optional<Teacher> teacher = repository.findById(entity.getId());
 
             if(teacher.isPresent())
             {
-                teacher newEntity = teacher.get();
+                Teacher newEntity = teacher.get();
                 //newEntity.setId(entity.getId());
                 newEntity.setName(entity.getName());
                 newEntity.setNationality(entity.getNationality());
                 newEntity.setDescription(entity.getDescription());
-
+                newEntity.setEmail(entity.getEmail());
+                if (entity.getStudents()!=null) {
+                    newEntity.setStudents(entity.getStudents());
+                }
                 newEntity = repository.save(newEntity);
 
                 return newEntity;
@@ -71,7 +74,7 @@ public class teacherService {
 
     public void deleteTeacherById(Long id) throws RecordNotFoundException
     {
-        Optional<teacher> teacher = repository.findById(id);
+        Optional<Teacher> teacher = repository.findById(id);
 
         if(teacher.isPresent())
         {
@@ -82,15 +85,29 @@ public class teacherService {
     }
 
 
-    public List<teacher> getTeacherByName(String name) {
-        List<teacher> teacherList = repository.getByName(name);
+    public List<Teacher> getTeacherByName(String name) {
+        List<Teacher> teacherList = repository.getByName(name);
 
         if(teacherList.size() > 0) {
             return teacherList;
         } else {
-            return new ArrayList<teacher>();
+            return new ArrayList<Teacher>();
         }
     }
 
+    public List<Teacher> getTeacherByStudentId(Long id, int page){
+
+        int limit = 3;
+
+        int offset = (limit*page)-limit;
+
+        List<Teacher> teachers = repository.getTeacherByStudentId(id,limit,offset);
+
+        if(teachers.size() > 0){
+            return teachers;
+        }else{
+            return new ArrayList<>();
+        }
+    }
 
 }
